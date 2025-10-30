@@ -1,0 +1,8 @@
+Flask==2.0.1
+Werkzeug==2.0.1
+qrcode==7.3.1
+segno==1.5.2
+pymongo==4.1.1
+pillow==9.0.1
+gunicorn==20.1.0
+python-dotenv==0.19.2

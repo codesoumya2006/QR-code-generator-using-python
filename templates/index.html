@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QR Code Generator</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#3B82F6',
+            secondary: '#10B981',
+            accent: '#8B5CF6',
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    .card-transition { transition: all 0.3s ease; }
+    .card-transition:hover { transform: translateY(-5px); }
+    .qr-preview { min-height: 200px; display: flex; align-items: center; justify-content: center; }
+  </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+  <div class="container mx-auto px-4 py-8">
+    <!-- Header -->
+    <header class="text-center mb-12">
+      <h1 class="text-4xl md:text-5xl font-bold text-gray-800 mb-2">QR Code Generator</h1>
+      <p class="text-xl text-gray-600">Generate QR Codes instantly from Links, Files, or Text</p>
+    </header>
+
+    <!-- Main Content - QR Generator Options -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+      <!-- Link QR Generator -->
+      <div class="bg-white rounded-xl shadow-lg p-6 card-transition">
+        <h2 class="text-2xl font-semibold text-primary mb-4">Link to QR</h2>
+        <form id="link-form" class="space-y-4">
+          <div>
+            <label for="link" class="block text-sm font-medium text-gray-700 mb-1">Enter URL</label>
+            <input type="url" id="link" name="link" placeholder="https://example.com" 
+              class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-primary focus:border-primary">
+          </div>
+          <button type="submit" 
+            class="w-full bg-primary text-white py-2 px-4 rounded-md hover:bg-blue-600 transition duration-300 flex items-center justify-center">
+            <span>Generate QR Code</span>
+          </button>
+        </form>
+        <div class="qr-preview mt-6" id="link-qr-preview">
+          <p class="text-gray-500 text-center">QR code will appear here</p>
+        </div>
+        <div id="link-download" class="mt-4 hidden">
+          <button class="download-png w-full bg-gray-800 text-white py-2 px-4 rounded-md hover:bg-gray-700 transition duration-300 mb-2">Download PNG</button>
+          <button class="download-svg w-full bg-gray-600 text-white py-2 px-4 rounded-md hover:bg-gray-500 transition duration-300">Download SVG</button>
+        </div>
+      </div>
+
+      <!-- File QR Generator -->
+      <div class="bg-white rounded-xl shadow-lg p-6 card-transition">
+        <h2 class="text-2xl font-semibold text-secondary mb-4">File to QR</h2>
+        <form id="file-form" class="space-y-4" enctype="multipart/form-data">
+          <div>
+            <label for="file" class="block text-sm font-medium text-gray-700 mb-1">Upload File</label>
+            <input type="file" id="file" name="file" 
+              class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-secondary focus:border-secondary">
+            <p class="mt-1 text-xs text-gray-500">Supported: PDF, JPG, PNG, DOCX (Max: 16MB)</p>
+          </div>
+          <button type="submit" 
+            class="w-full bg-secondary text-white py-2 px-4 rounded-md hover:bg-green-600 transition duration-300 flex items-center justify-center">
+            <span>Generate QR Code</span>
+          </button>
+        </form>
+        <div class="qr-preview mt-6" id="file-qr-preview">
+          <p class="text-gray-500 text-center">QR code will appear here</p>
+        </div>
+        <div id="file-download" class="mt-4 hidden">
+          <button class="download-png w-full bg-gray-800 text-white py-2 px-4 rounded-md hover:bg-gray-700 transition duration-300 mb-2">Download PNG</button>
+          <button class="download-svg w-full bg-gray-600 text-white py-2 px-4 rounded-md hover:bg-gray-500 transition duration-300">Download SVG</button>
+          <div class="mt-2 text-sm text-gray-600 text-center" id="file-access-url"></div>
+        </div>
+      </div>
+
+      <!-- Text QR Generator -->
+      <div class="bg-white rounded-xl shadow-lg p-6 card-transition">
+        <h2 class="text-2xl font-semibold text-accent mb-4">Text to QR</h2>
+        <form id="text-form" class="space-y-4">
+          <div>
+            <label for="text" class="block text-sm font-medium text-gray-700 mb-1">Enter Text</label>
+            <textarea id="text" name="text" rows="3" placeholder="Your message here" 
+              class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-accent focus:border-accent"></textarea>
+          </div>
+          <button type="submit" 
+            class="w-full bg-accent text-white py-2 px-4 rounded-md hover:bg-purple-600 transition duration-300 flex items-center justify-center">
+            <span>Generate QR Code</span>
+          </button>
+        </form>
+        <div class="qr-preview mt-6" id="text-qr-preview">
+          <p class="text-gray-500 text-center">QR code will appear here</p>
+        </div>
+        <div id="text-download" class="mt-4 hidden">
+          <button class="download-png w-full bg-gray-800 text-white py-2 px-4 rounded-md hover:bg-gray-700 transition duration-300 mb-2">Download PNG</button>
+          <button class="download-svg w-full bg-gray-600 text-white py-2 px-4 rounded-md hover:bg-gray-500 transition duration-300">Download SVG</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="mt-16 text-center text-gray-600 pb-8">
+      <p>© 2025 QR Generator | Built with Python & Tailwind</p>
+    </footer>
+  </div>
+
+  <!-- JavaScript -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Generic QR generator
+      async function generateQR(formId, previewId, downloadId, endpoint, typeDataSetter) {
+        const form = document.getElementById(formId);
+        const preview = document.getElementById(previewId);
+        const download = document.getElementById(downloadId);
+
+        form.addEventListener('submit', async function(e) {
+          e.preventDefault();
+          const formData = new FormData(form);
+
+          preview.innerHTML = `<div class="text-center"><div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-gray-500"></div><p class="mt-2 text-gray-600">Generating...</p></div>`;
+
+          try {
+            const response = await fetch(endpoint, { method: 'POST', body: formData });
+            const data = await response.json();
+
+            if (data.success) {
+              typeDataSetter(data);
+              preview.innerHTML = `<img src="${data.qr_code}" alt="QR Code" class="mx-auto max-w-full h-auto">`;
+              download.classList.remove('hidden');
+              if (data.access_url) {
+                const fileAccessUrl = document.getElementById('file-access-url');
+                fileAccessUrl.innerHTML = `<a href="${data.access_url}" target="_blank" class="text-blue-600 hover:underline">Access Link</a>`;
+              }
+            } else {
+              preview.innerHTML = `<p class="text-red-500 text-center">${data.error || 'Error generating QR code'}</p>`;
+            }
+          } catch (error) {
+            console.error('Error:', error);
+            preview.innerHTML = `<p class="text-red-500 text-center">Error generating QR code</p>`;
+          }
+        });
+      }
+
+      let linkData = '', fileData = '', textData = '';
+      generateQR('link-form', 'link-qr-preview', 'link-download', '/generate-qr-link', (data) => { linkData = data.data; });
+      generateQR('file-form', 'file-qr-preview', 'file-download', '/generate-qr-file', (data) => { fileData = data.access_url; });
+      generateQR('text-form', 'text-qr-preview', 'text-download', '/generate-qr-text', (data) => { textData = data.data; });
+
+      // Download buttons
+      document.querySelectorAll('.download-png, .download-svg').forEach(button => {
+        button.addEventListener('click', async function() {
+          const downloadContainer = this.closest('div[id$="-download"]');
+          const type = downloadContainer.id.split('-')[0];
+          let data;
+          if (type === 'link') data = linkData;
+          else if (type === 'file') data = fileData;
+          else if (type === 'text') data = textData;
+
+          if (!data) return;
+
+          const format = this.classList.contains('download-png') ? 'png' : 'svg';
+          try {
+            const formData = new FormData();
+            formData.append('data', data);
+            formData.append('format', format);
+
+            const response = await fetch(`/download-qr/${type}`, { method: 'POST', body: formData });
+
+            if (response.ok) {
+              const blob = await response.blob();
+              const url = window.URL.createObjectURL(blob);
+              const a = document.createElement('a');
+              a.style.display = 'none';
+              a.href = url;
+              a.download = `qrcode_${type}.${format}`;
+              document.body.appendChild(a);
+              a.click();
+              window.URL.revokeObjectURL(url);
+            } else {
+              alert('Error downloading QR code');
+            }
+          } catch (error) {
+            console.error('Error:', error);
+            alert('Error downloading QR code');
+          }
+        });
+      });
+    });
+  </script>
+</body>
+</html>
